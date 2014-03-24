@@ -26,12 +26,20 @@ module.exports =
       filepath = @config.law[prop]
       return @util.retrieve(filepath)
 
+    rawServices = law.load @util.rel(@config.law.services)
+    @services = law.create {
+      services: rawServices
+      jargon: try load('jargon')
+      policy: try load('policy')
+    }
+
+    # bind all services to the axiom context
+    for name, service of @services
+      @services[name] = service.bind(@)
+
+    # connect the services to REST routes
     app.use lawAdapter {
-      services: law.create {
-        services: law.load @util.rel(@config.law.services)
-        jargon: try load('jargon')
-        policy: try load('policy')
-      }
+      services: @services
       routeDefs: try load('routeDefs')
       options: @config.law.adapterOptions
     }

@@ -57,3 +57,21 @@ describe 'run', ->
     # given the run command is initiated
     axiom.request "server.run", {}, (err, result) ->
       should.not.exist err
+
+  it 'services should receive axiom context', (done) ->
+
+    # when the end of the 'start' lifecycle is reached
+    axiom.respond "server.run/connect", (args, fin) ->
+      fin()
+
+      # and I call a service
+      @services.returnContext {}, (err, {context}) ->
+
+        # then that service should receive the axiom context
+        should.exist context.util
+        done()
+
+
+    # given the run command is initiated
+    axiom.request "server.run", {}, (err, result) ->
+      should.not.exist err
