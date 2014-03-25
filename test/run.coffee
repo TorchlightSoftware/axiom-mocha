@@ -6,37 +6,25 @@ axiom = require 'axiom'
 request = require 'request'
 logger = require 'torch'
 _ = require 'lodash'
-mockery = require 'mockery'
-
-retriever = require '../node_modules/axiom/lib/retriever'
 
 server = require '..'
 {port} = server.config.run
 
-projectDir = path.join(__dirname, '..', 'sample')
+projectDir = path.join(__dirname, '../sample')
 
+retriever = _.clone require('../node_modules/axiom/lib/retriever')
+retriever.projectRoot = projectDir
 
 describe 'run', ->
   beforeEach ->
-    mockery.enable
-      warnOnReplace: false
-      warnOnUnregistered: false
-    mockery.registerMock(
-      path.join(projectDir, 'node_modules', 'axiom-base'),
-      require('axiom-base')
-    )
-    mockery.registerMock(
-      'axiom-base',
-      require('axiom-base')
-    )
-    retriever.projectRoot = projectDir
-    retriever.projectRoot.should.eql projectDir
-    retriever.rel().should.eql projectDir
     axiom.init {}, retriever
+    #axiom.wireUpLoggers [{writer: 'console', level: 'debug'}]
     axiom.load 'server', server
 
   afterEach ->
-    mockery.disable()
+    axiom.reset()
+
+  it 'should do nothing', ->
 
   it 'should start the server', (done) ->
 
@@ -70,7 +58,6 @@ describe 'run', ->
         # then that service should receive the axiom context
         should.exist context.util
         done()
-
 
     # given the run command is initiated
     axiom.request "server.run", {}, (err, result) ->

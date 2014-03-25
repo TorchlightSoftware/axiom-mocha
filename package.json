@@ -1,7 +1,7 @@
 {
   "name": "axiom-server",
   "description": "Standard server services for Torchlight projects.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "homepage": "",
   "repository": "",
   "author": "Torchlight Software <info@torchlightsoftware.com> (http://torchlightsoftware.com)",
@@ -19,8 +19,7 @@
     "mocha": "*",
     "request": "*",
     "should": "*",
-    "lodash": "*",
-    "mockery": "*"
+    "lodash": "*"
   },
   "engines":{
     "node": ">= 0.8.4"

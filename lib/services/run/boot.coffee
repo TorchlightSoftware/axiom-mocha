@@ -14,7 +14,6 @@ module.exports =
       @axiom.log.info "Started server on port #{@config.port}."
       done(err)
 
-    {app} = @config
     done ?= ->
 
     if @config.ssl
@@ -27,7 +26,7 @@ module.exports =
         ca: ca.map read
 
       # create server with ssl
-      server = https.createServer(options, app).listen @config.port, finished
+      server = https.createServer(options, @app).listen @config.port, finished
 
       #http server to redirect to https
       if @config.ssl.redirectFrom?
@@ -38,7 +37,7 @@ module.exports =
           }
           res.end()
         redirectServer = http.createServer(redirect).listen config.app.ssl.redirectFrom
-      @config.server = server
+      @server = server
 
     else
-      @config.server = http.createServer(app).listen @config.port, finished
+      @server = http.createServer(@app).listen @config.port, finished

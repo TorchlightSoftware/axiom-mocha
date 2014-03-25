@@ -5,7 +5,6 @@ lawAdapter = require 'law-connect'
 fs = require 'fs'
 
 module.exports =
-  required: []
   service: (args, done) ->
 
     app = connect()
@@ -20,7 +19,8 @@ module.exports =
     app.use connect.static @config.paths.public
 
     # TODO: break out into separate service, call via @axiom.request
-    app.use connect.bodyParser()
+    app.use connect.urlencoded()
+    app.use connect.json()
 
     load = (prop) =>
       filepath = @config.law[prop]
@@ -44,5 +44,5 @@ module.exports =
       options: @config.law.adapterOptions
     }
 
-    @config.app = app
+    @app = app
     done()
