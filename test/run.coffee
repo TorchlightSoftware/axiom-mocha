@@ -7,44 +7,45 @@ request = require 'request'
 logger = require 'torch'
 _ = require 'lodash'
 
-server = require '..'
-{port} = server.config.run
+connect = require '..'
+{port} = connect.config
 
 projectDir = path.join(__dirname, '../sample')
 
-retriever = _.clone require('../node_modules/axiom/lib/retriever')
-retriever.projectRoot = projectDir
-
 describe 'run', ->
   beforeEach ->
-    axiom.init {}, retriever
-    #axiom.wireUpLoggers [{writer: 'console', level: 'debug'}]
-    axiom.load 'server', server
+    axiom.wireUpLoggers [{writer: 'console', level: 'info'}]
+    axiom.init {}, {root: projectDir}
 
   afterEach ->
     axiom.reset()
 
-  it 'should do nothing', ->
-
   it 'should start the server', (done) ->
 
     # when the end of the 'start' lifecycle is reached
-    axiom.respond "server.run/connect", (args, fin) ->
-      fin()
+    axiom.respond "server.run/run", (args, fin) ->
 
       # then the server should respond to requests
       request {
-        url: "http://localhost:#{port}"
+        url: "http://localhost:#{port}/hello"
         json: true
+
       }, (err, res, body) ->
+
         should.not.exist err
         should.exist body
         body.should.eql {greeting: 'hello, world'}
         done()
 
+      fin()
+
     # given the run command is initiated
     axiom.request "server.run", {}, (err, result) ->
       should.not.exist err
+
+    # and a responder exists
+    axiom.respond 'connect.default/hello', (args, fin) ->
+      fin null, {greeting: 'hello, world'}
 
   it 'services should receive axiom context', (done) ->
 

@@ -1,27 +1,25 @@
 {
-  "name": "axiom-server",
-  "description": "Standard server services for Torchlight projects.",
+  "name": "axiom-connect",
+  "description": "Axiom Connect extension.",
   "version": "0.0.3",
   "homepage": "",
   "repository": "",
   "author": "Torchlight Software <info@torchlightsoftware.com> (http://torchlightsoftware.com)",
   "main": "./index.js",
   "dependencies": {
-    "law": "*",
-    "law-connect": "*",
-    "torch": "*",
+    "torch": "^0.2.3",
     "coffee-script": "*",
     "connect": "*",
     "axiom": "*",
-    "axiom-base": "*"
+    "lodash": "*",
+    "request": "^2.35.0"
   },
   "devDependencies": {
     "mocha": "*",
     "request": "*",
-    "should": "*",
-    "lodash": "*"
+    "should": "*"
   },
-  "engines":{
+  "engines": {
     "node": ">= 0.8.4"
   },
   "licenses": [
