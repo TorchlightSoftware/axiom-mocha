@@ -13,53 +13,77 @@ connect = require '..'
 projectDir = path.join(__dirname, '../sample')
 
 describe 'run', ->
-  beforeEach ->
+  before (done) ->
     axiom.wireUpLoggers [{writer: 'console', level: 'info'}]
-    axiom.init {}, {root: projectDir}
+    axiom.init {timeout: 200}, {root: projectDir}
 
-  afterEach ->
-    axiom.reset()
+    # Given the run command is initiated
+    axiom.request "server.run", {}, done
+
+  after (done) ->
+    axiom.reset(done)
 
   it 'should start the server', (done) ->
 
-    # when the end of the 'start' lifecycle is reached
-    axiom.respond "server.run/run", (args, fin) ->
-
-      # then the server should respond to requests
-      request {
-        url: "http://localhost:#{port}/hello"
-        json: true
-
-      }, (err, res, body) ->
-
-        should.not.exist err
-        should.exist body
-        body.should.eql {greeting: 'hello, world'}
-        done()
-
-      fin()
-
-    # given the run command is initiated
-    axiom.request "server.run", {}, (err, result) ->
-      should.not.exist err
-
-    # and a responder exists
+    # Given a responder exists
     axiom.respond 'connect.default/hello', (args, fin) ->
       fin null, {greeting: 'hello, world'}
 
-  it 'services should receive axiom context', (done) ->
+    # When a request is sent
+    request {
+      url: "http://localhost:#{port}/hello"
+      json: true
 
-    # when the end of the 'start' lifecycle is reached
-    axiom.respond "server.run/connect", (args, fin) ->
-      fin()
+    }, (err, res, body) ->
 
-      # and I call a service
-      @services.returnContext {}, (err, {context}) ->
-
-        # then that service should receive the axiom context
-        should.exist context.util
-        done()
-
-    # given the run command is initiated
-    axiom.request "server.run", {}, (err, result) ->
+      # Then the data from the responder should be received
       should.not.exist err
+      should.exist body
+      body.should.eql {greeting: 'hello, world'}
+      done()
+
+
+  it 'should accept middleware', (done) ->
+    request {
+      url: "http://localhost:#{port}/special"
+      json: true
+
+    }, (err, res, body) ->
+
+      # Then the data from the responder should be received
+      should.not.exist err
+      should.exist body
+
+      # why doesn't this get auto-parsed?  am I missing a header?
+      body.should.eql '{special: true}'
+      done()
+
+  it 'should send no route 404', (done) ->
+    request {
+      url: "http://localhost:#{port}/nonexistent"
+      json: true
+
+    }, (err, res, body) ->
+
+      # Then a 404 should be received
+      should.not.exist err
+      res.statusCode.should.eql 404
+      should.exist body
+      body.message.should.eql "No route for: '/nonexistent'"
+
+      done()
+
+  it 'should send no service 404', (done) ->
+    request {
+      url: "http://localhost:#{port}/noservice"
+      json: true
+
+    }, (err, res, body) ->
+
+      # Then a 404 should be received
+      should.not.exist err
+      res.statusCode.should.eql 404
+      should.exist body
+      body.message.should.eql "No responders for request: 'connect.default/noservice'"
+
+      done()

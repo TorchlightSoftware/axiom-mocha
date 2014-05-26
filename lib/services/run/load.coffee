@@ -1,7 +1,11 @@
 connect = require 'connect'
 _ = require 'lodash'
+logger = require 'torch'
 
-getErrorBody = require '../../getErrorBody'
+getErrorBody = require '../../helpers/getErrorBody'
+makeRouter = require '../../helpers/makeRouter'
+makeResource = require '../../helpers/makeResource'
+{NoRouteError} = require '../../helpers/errors'
 
 module.exports =
   service: (args, done) ->
@@ -20,52 +24,56 @@ module.exports =
     app.use connect.urlencoded()
     app.use connect.json()
 
+    # run any additional middleware that the consumer would like
+    try
+      middleware = @retriever.retrieve('middleware')
+
+    middleware?(app)
+
+    # set up routes
+    routes = _.flatten _.map @config.routes, makeResource
+    router = makeRouter routes
+
+    match = (req) ->
+      method = req.method.toLowerCase()
+      pathname = req._parsedUrl.pathname
+
+      found = router.match pathname
+
+      return {
+        serviceName: found?.fn[method] or 'notFound'
+        params: found?.params
+      }
+
     # respond to requests
     app.use (req, res, next) =>
-      {body, query, cookies, url} = req
-      args = _.merge {}, query, cookies, body
+      send = ({statusCode, responseBody}) ->
+        contentType = 'application/json'
+        res.writeHead statusCode, contentType
+        res.end (JSON.stringify responseBody)
+
+      {body, query, cookies} = req
+      {serviceName, params} = match(req)
+      if serviceName is 'notFound'
+        return send getErrorBody.call @, new NoRouteError {path: req.url}
+
+      args = _.merge {}, body, cookies, query, params
 
       # connect to message bus
-      @axiom.request "default#{url}", args, (err, result) =>
+      location = "#{@config.prefix}/#{serviceName}"
+      @axiom.request location, args, (err, result) =>
 
-        if (err instanceof Error)
-          responseBody = getErrorBody err, @config.options
-
-          # how will 404 look?
-
-          statusCode = 500
+        if err?
+          response = getErrorBody.call @, err
 
         else
           responseBody = _.clone result
           delete responseBody.statusCode
 
           statusCode = result.statusCode or 200
+          response = {responseBody, statusCode}
 
-        contentType = 'application/json'
+        send response
 
-        res.writeHead statusCode, contentType
-        res.end (JSON.stringify responseBody)
-
-    @axiom.request 'run/startServer', {app}, done
-
-    #load = (prop) =>
-      #filepath = @config.law[prop]
-      #return @util.retrieve(filepath)
-
-    #rawServices = law.load @util.rel(@config.law.services)
-    #@services = law.create {
-      #services: rawServices
-      #jargon: try load('jargon')
-      #policy: try load('policy')
-    #}
-
-    ## bind all services to the axiom context
-    #for name, service of @services
-      #@services[name] = service.bind(@)
-
-    ## connect the services to REST routes
-    #app.use lawAdapter {
-      #services: @services
-      #routeDefs: try load('routeDefs')
-      #options: @config.law.adapterOptions
-    #}
+    @axiom.request 'startServer', {app}, (err, {server, redirectServer}) ->
+      done err, {app, server, redirectServer}

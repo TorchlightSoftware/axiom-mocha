@@ -12,7 +12,10 @@
     "connect": "*",
     "axiom": "*",
     "lodash": "*",
-    "request": "^2.35.0"
+    "request": "^2.35.0",
+    "routes": "^1.1.0",
+    "async": "^0.9.0",
+    "tea-error": "^0.1.0"
   },
   "devDependencies": {
     "mocha": "*",

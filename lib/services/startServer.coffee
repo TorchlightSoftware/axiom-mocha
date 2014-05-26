@@ -9,10 +9,11 @@ read = (file) -> fs.readFileSync file, 'utf8'
 module.exports =
   service: ({app}, done) ->
     server = null
+    redirectServer = null
 
     finished = (err) =>
       @axiom.log.info "Started server on port #{@config.port}."
-      done err, server
+      done err, {server, redirectServer}
 
     if @config.ssl
 
