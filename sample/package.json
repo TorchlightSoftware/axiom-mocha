@@ -1,5 +1,7 @@
 {
   "dependencies": {
-    "axiom-protocol": "*"
+    "axiom-protocol": "*",
+    "law": "^0.2.6",
+    "fs-extra": "^0.9.1"
   }
 }

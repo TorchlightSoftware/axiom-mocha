@@ -1,4 +1,5 @@
 module.exports =
   extensions:
     protocol: '*'
-    connect: require '..'
+    mocha: require '..'
+    helpers: require './extensions/helpers'

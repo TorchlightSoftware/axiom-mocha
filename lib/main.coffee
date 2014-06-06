@@ -5,29 +5,18 @@ logger = require 'torch'
 rel = (args...) -> join __dirname, args...
 
 module.exports =
-  config:
-    port: 4000
-    ssl: false
-    paths:
-      public: rel '..', 'public'
+  config: {}
 
-    allowAll: true
-    options: [
-      'compress'
-      'responseTime'
-      'favicon'
-      'staticCache'
-      'query'
-      'cookieParser'
-    ]
+  extends:
+    loadMocha: ['server.test/load']
+    runMocha: ['server.test/run']
+    #'unloadMocha': ['server.run/unload']
 
-    static: ['public']
-
-    prefix: 'default'
-
-  attachments:
-    'run/load': ['server.run/load']
-    'run/unload': ['server.run/unload']
+  controls:
+    before: 'server.test/before'
+    beforeEach: 'server.test/beforeEach'
+    afterEach: 'server.test/afterEach'
+    after: 'server.test/after'
 
   # Services used by the extension
   services: law.load rel('services')
