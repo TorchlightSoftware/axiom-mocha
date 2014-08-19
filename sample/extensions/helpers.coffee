@@ -1,6 +1,7 @@
 fs = require 'fs-extra'
+logger = require 'torch'
 
-history = []
+history = {}
 
 module.exports =
 
@@ -18,19 +19,19 @@ module.exports =
       done()
 
     before: (args, done) ->
-      history.push 'before'
+      history.before = true
       done()
 
     after: (args, done) ->
-      history.push 'after'
+      history.after = true
       done()
 
     beforeEach: (args, done) ->
-      history.push 'beforeEach'
+      history.beforeEach = true
       done()
 
     afterEach: (args, done) ->
-      history.push 'afterEach'
+      history.afterEach = true
       done()
 
   history: history
