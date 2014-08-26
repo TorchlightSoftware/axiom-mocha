@@ -5,6 +5,8 @@ _ = require 'lodash'
 minimatch = require 'minimatch'
 {relative} = require 'path'
 
+util = require '../helpers/util'
+
 module.exports =
   service: (args, done) ->
     context = @
@@ -18,7 +20,7 @@ module.exports =
 
     # add our helper environment to mocha
     mocha.suite.beforeAll 'addContext', (fin) ->
-      _.merge @, context.appUtils, context.appRetriever
+      _.merge @, context.appUtils, context.appRetriever, util
       fin()
 
     # send out 'before' signal to any extensions that will respond to it
@@ -41,7 +43,7 @@ module.exports =
         next()
       filter: filter
 
-    }, @rel('tests'), (err) ->
+    }, @rel(@config.testsDir), (err) ->
       done(err, {mocha})
 
     mocha.grep(@config.grep) if @config.grep

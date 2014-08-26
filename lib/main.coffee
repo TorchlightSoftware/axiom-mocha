@@ -5,7 +5,8 @@ logger = require 'torch'
 rel = (args...) -> join __dirname, args...
 
 module.exports =
-  config: {}
+  config:
+    testsDir: 'test'
 
   extends:
     loadMocha: ['server.test/load']

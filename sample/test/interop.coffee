@@ -2,11 +2,11 @@ should = require 'should'
 fs = require 'fs'
 logger = require 'torch'
 
-{history} = require '../../../extensions/helpers'
+{history} = require '../extensions/helpers'
 
 describe 'before', ->
-  it 'should create a helper', (done) ->
-    @request 'mocha.helper', {}, (err, data) ->
+  it 'should call a helper', (done) ->
+    @request 'helpers.helper', {}, (err, data) =>
       should.not.exist err
       should.exist data?.result, 'expected result'
       data.result.should.eql "I'm helping!"

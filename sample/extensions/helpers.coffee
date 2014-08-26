@@ -13,10 +13,8 @@ module.exports =
     afterEach: ['server.test/afterEach']
 
   services:
-    createHelper: (args, done) ->
-      @respond 'helper', (args, fin) ->
-        fin null, {result: "I'm helping!"}
-      done()
+    helper: (args, done) ->
+      done null, {result: "I'm helping!"}
 
     before: (args, done) ->
       history.before = true
