@@ -2,8 +2,6 @@ should = require 'should'
 fs = require 'fs'
 logger = require 'torch'
 
-{history} = require '../extensions/helpers'
-
 describe 'before', ->
   it 'should call a helper', (done) ->
     @request 'helpers.helper', {}, (err, data) =>
@@ -14,6 +12,8 @@ describe 'before', ->
 
   # wish there were some way to do this without resorting to global state
   it 'should run before/after steps', ->
+    {history} = @retrieve 'extensions/helpers'
+
     should.exist history.before, 'expected before'
     should.exist history.beforeEach, 'expected beforeEach'
     should.exist history.afterEach, 'expected afterEach'
