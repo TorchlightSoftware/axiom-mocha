@@ -1,12 +1,13 @@
 {
   "name": "axiom-mocha",
   "description": "Axiom Mocha extension.",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "homepage": "",
   "repository": "",
   "author": "Torchlight Software <info@torchlightsoftware.com> (http://torchlightsoftware.com)",
   "main": "./index.js",
   "dependencies": {
+    "mocha": "*",
     "torch": "^0.2.3",
     "law": "*",
     "coffee-script": "*",
@@ -14,11 +15,10 @@
     "axiom-protocol": "*",
     "nomad": "*",
     "lodash": "*",
-    "minimatch": "^0.3.0"
+    "minimatch": "^0.3.0",
+    "should": "*"
   },
   "devDependencies": {
-    "mocha": "*",
-    "should": "*"
   },
   "engines": {
     "node": ">= 0.8.4"

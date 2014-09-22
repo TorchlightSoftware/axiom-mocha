@@ -7,6 +7,7 @@ rel = (args...) -> join __dirname, args...
 module.exports =
   config:
     testsDir: 'test'
+    contextLoc: 'context'
 
   extends:
     loadMocha: ['server.test/load']

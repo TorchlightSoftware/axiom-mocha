@@ -18,10 +18,17 @@ module.exports =
       reporter: 'spec'
     }
 
+    try
+      customizeContext = @retrieve @config.contextLoc
+
     # add our helper environment to mocha
     mocha.suite.beforeAll 'addContext', (fin) ->
       _.merge @, context.appUtils, context.appRetriever, util
-      fin()
+
+      if customizeContext?
+        customizeContext.call(@, fin)
+      else
+        fin()
 
     # send out 'before' signal to any extensions that will respond to it
     mocha.suite.beforeAll 'delegateBefore', _.partial(context.delegate, 'before', {})
@@ -38,7 +45,8 @@ module.exports =
 
     # add our tests to mocha
     nomad.walk {
-      processFile: (filename, next) ->
+      processFile: (filename, next) =>
+        @log.debug 'loading test:', filename
         mocha.addFile(filename)
         next()
       filter: filter
